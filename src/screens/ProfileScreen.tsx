@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components/native';
 import { Input, Button, ListItem, Icon } from 'react-native-elements';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,8 +14,16 @@ type ProfileScreenProps = {
 };
 
 const ProfileScreen: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateUserProfile } = useAuth();
   const navigation = useNavigation<ProfileScreenProps['navigation']>();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const getRoleText = (role: string) => {
     switch (role) {
@@ -30,6 +38,76 @@ const ProfileScreen: React.FC = () => {
     }
   };
 
+  const handleSaveProfile = async () => {
+    if (!name.trim()) {
+      Alert.alert('Erro', 'O nome não pode estar vazio');
+      return;
+    }
+
+    if (!email.trim()) {
+      Alert.alert('Erro', 'O email não pode estar vazio');
+      return;
+    }
+
+    // Validação básica de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Erro', 'Por favor, insira um email válido');
+      return;
+    }
+
+    // Validação de senha
+    if (newPassword) {
+      if (!currentPassword) {
+        Alert.alert('Erro', 'Por favor, insira sua senha atual');
+        return;
+      }
+
+      if (newPassword.length < 6) {
+        Alert.alert('Erro', 'A nova senha deve ter pelo menos 6 caracteres');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        Alert.alert('Erro', 'As senhas não coincidem');
+        return;
+      }
+    }
+
+    try {
+      setLoading(true);
+      
+      // Aqui você implementaria a lógica real para atualizar o perfil
+      // Simulando uma atualização bem-sucedida:
+      await updateUserProfile({
+        name,
+        email,
+        currentPassword,
+        newPassword
+      });
+      
+      Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+      setIsEditing(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível atualizar o perfil. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    // Restaurar valores originais
+    setName(user?.name || '');
+    setEmail(user?.email || '');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setIsEditing(false);
+  };
+
   return (
     <Container>
       <Header />
@@ -38,16 +116,104 @@ const ProfileScreen: React.FC = () => {
 
         <ProfileCard>
           <Avatar source={{ uri: user?.image || 'https://via.placeholder.com/150' }} />
-          <Name>{user?.name}</Name>
-          <Email>{user?.email}</Email>
-          <RoleBadge role={user?.role || ''}>
-            <RoleText>{getRoleText(user?.role || '')}</RoleText>
-          </RoleBadge>
           
-          {user?.role === 'doctor' && (
-            <SpecialtyText>Especialidade: {user?.specialty}</SpecialtyText>
+          {isEditing ? (
+            <>
+              <Input
+                label="Nome"
+                value={name}
+                onChangeText={setName}
+                containerStyle={styles.inputContainer}
+                inputStyle={styles.input}
+              />
+              
+              <Input
+                label="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                containerStyle={styles.inputContainer}
+                inputStyle={styles.input}
+              />
+              
+              <Input
+                label="Senha Atual"
+                value={currentPassword}
+                onChangeText={setCurrentPassword}
+                secureTextEntry
+                containerStyle={styles.inputContainer}
+                inputStyle={styles.input}
+                placeholder="Necessária para alterar a senha"
+              />
+              
+              <Input
+                label="Nova Senha"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry
+                containerStyle={styles.inputContainer}
+                inputStyle={styles.input}
+                placeholder="Deixe em branco para manter a atual"
+              />
+              
+              <Input
+                label="Confirmar Nova Senha"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                containerStyle={styles.inputContainer}
+                inputStyle={styles.input}
+              />
+            </>
+          ) : (
+            <>
+              <Name>{user?.name}</Name>
+              <Email>{user?.email}</Email>
+              <RoleBadge role={user?.role || ''}>
+                <RoleText>{getRoleText(user?.role || '')}</RoleText>
+              </RoleBadge>
+              
+              {user?.role === 'doctor' && (
+                <SpecialtyText>Especialidade: {user?.specialty}</SpecialtyText>
+              )}
+            </>
           )}
         </ProfileCard>
+
+        {isEditing ? (
+          <ButtonContainer>
+            <Button
+              title="Salvar"
+              onPress={handleSaveProfile}
+              containerStyle={[styles.editButton, { marginRight: 5 }]}
+              buttonStyle={styles.saveButton}
+              loading={loading}
+            />
+            <Button
+              title="Cancelar"
+              onPress={handleCancelEdit}
+              containerStyle={[styles.editButton, { marginLeft: 5 }]}
+              buttonStyle={styles.cancelButton}
+            />
+          </ButtonContainer>
+        ) : (
+          <Button
+            title="Editar Perfil"
+            onPress={() => setIsEditing(true)}
+            containerStyle={styles.button as ViewStyle}
+            buttonStyle={styles.editProfileButton}
+            icon={
+              <Icon
+                name="edit"
+                type="material"
+                color="white"
+                size={20}
+                style={{ marginRight: 10 }}
+              />
+            }
+          />
+        )}
 
         <Button
           title="Voltar"
@@ -83,6 +249,29 @@ const styles = {
     backgroundColor: theme.colors.error,
     paddingVertical: 12,
   },
+  editProfileButton: {
+    backgroundColor: theme.colors.secondary,
+    paddingVertical: 12,
+  },
+  editButton: {
+    marginBottom: 20,
+    flex: 1,
+  },
+  saveButton: {
+    backgroundColor: theme.colors.success,
+    paddingVertical: 12,
+  },
+  cancelButton: {
+    backgroundColor: theme.colors.error,
+    paddingVertical: 12,
+  },
+  inputContainer: {
+    width: 100,  //100%
+    marginBottom: 10,
+  },
+  input: {
+    fontSize: 16,
+  },
 };
 
 const Container = styled.View`
@@ -110,6 +299,12 @@ const ProfileCard = styled.View`
   align-items: center;
   border-width: 1px;
   border-color: ${theme.colors.border};
+`;
+
+const ButtonContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const Avatar = styled.Image`

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../services/auth';
-import { User, LoginCredentials, RegisterData, AuthContextData } from '../types/auth';
+import { User, LoginCredentials, RegisterData, AuthContextData, UpdateProfileData } from '../types/auth';
 
 // Chaves de armazenamento
 const STORAGE_KEYS = {
@@ -63,6 +63,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUserProfile = async (data: UpdateProfileData) => {
+    try {
+      // Verificar se o usuário está autenticado
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      // Se a senha atual for fornecida, verificar se está correta
+      if (data.currentPassword) {
+        // Aqui você implementaria a verificação real da senha
+        // Para este exemplo, vamos apenas simular uma verificação
+        const isPasswordValid = await authService.validatePassword(user.email, data.currentPassword);
+        if (!isPasswordValid) {
+          throw new Error('Senha atual incorreta');
+        }
+      }
+
+      // Atualizar o perfil do usuário
+      const updatedUser = await authService.updateProfile({
+        ...user,
+        name: data.name,
+        email: data.email,
+        // Se uma nova senha for fornecida, atualizá-la
+        ...(data.newPassword ? { password: data.newPassword } : {})
+      });
+
+      // Atualizar o estado e o armazenamento local
+      setUser(updatedUser);
+      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+
+      return updatedUser;
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       await authService.signOut();
@@ -75,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, register, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, register, signOut, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -166,4 +166,59 @@ export const authService = {
       console.error('Erro ao carregar usuários registrados:', error);
     }
   },
+
+// Adicione estes métodos ao seu serviço de autenticação
+
+// Validar senha atual
+async validatePassword(email: string, password: string): Promise<boolean> {
+  try {
+    // Aqui você implementaria a validação real da senha
+    // Para este exemplo, vamos apenas simular uma verificação
+    const users = await this.getRegisteredUsers();
+    const user = users.find(u => u.email === email);
+    
+    if (!user) {
+      return false;
+    }
+    
+    return user.password === password;
+  } catch (error) {
+    console.error('Erro ao validar senha:', error);
+    return false;
+  }
+},
+
+// Atualizar perfil do usuário
+async updateProfile(updatedUser: User): Promise<User> {
+  try {
+    // Obter todos os usuários registrados
+    const users = await this.getRegisteredUsers();
+    
+    // Encontrar o índice do usuário a ser atualizado
+    const userIndex = users.findIndex(u => u.id === updatedUser.id);
+    
+    if (userIndex === -1) {
+      throw new Error('Usuário não encontrado');
+    }
+    
+    // Atualizar o usuário na lista
+    users[userIndex] = {
+      ...users[userIndex],
+      name: updatedUser.name,
+      email: updatedUser.email,
+      ...(updatedUser.password ? { password: updatedUser.password } : {})
+    };
+    
+    // Salvar a lista atualizada
+    await AsyncStorage.setItem('@MedicalApp:users', JSON.stringify(users));
+    
+    // Retornar o usuário atualizado
+    return users[userIndex];
+  } catch (error) {
+    console.error('Erro ao atualizar perfil:', error);
+    throw error;
+  }
+}
+
 }; 
+

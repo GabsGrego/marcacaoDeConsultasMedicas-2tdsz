@@ -70,13 +70,21 @@ export interface AuthResponse {
   token: string;
 }
 
-/**
- * Contexto de autenticação
- */
+// Atualize a interface AuthContextData para incluir o novo método
 export interface AuthContextData {
   user: User | null;
   loading: boolean;
   signIn: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   signOut: () => Promise<void>;
-} 
+  updateUserProfile: (data: UpdateProfileData) => Promise<User>;
+}
+
+// Adicione estas definições ao seu arquivo de tipos
+
+export interface UpdateProfileData {
+  name: string;
+  email: string;
+  currentPassword?: string;
+  newPassword?: string;
+}

@@ -42,7 +42,7 @@ const LoginScreen: React.FC = () => {
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
-        containerStyle={styles.input}
+        containerStyle={styles.input}      
       />
 
       <Input
@@ -84,6 +84,9 @@ const LoginScreen: React.FC = () => {
 const styles = {
   input: {
     marginBottom: 15,
+    backgroundColor: theme.colors.white,
+    borderRadius: 5,
+    opacity: 0.8,
   },
   button: {
     marginTop: 10,

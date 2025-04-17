@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { Button, ListItem } from 'react-native-elements';
+import { Input, Button, ListItem, Icon } from 'react-native-elements';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
-import { ViewStyle } from 'react-native';
+import { ViewStyle, Alert } from 'react-native';
 import theme from '../styles/theme';
 import Header from '../components/Header';
 
@@ -133,7 +133,11 @@ const Email = styled.Text`
 `;
 
 const RoleBadge = styled.View<{ role: string }>`
+<<<<<<< HEAD
   background-color: ${(props: { role: string }) => {
+=======
+  background-color: ${(props: any) => {
+>>>>>>> d44443a182781befd0389e42e16c515b24eae1ef
     switch (props.role) {
       case 'admin':
         return theme.colors.primary + '20';

@@ -133,11 +133,7 @@ const Email = styled.Text`
 `;
 
 const RoleBadge = styled.View<{ role: string }>`
-<<<<<<< HEAD
-  background-color: ${(props: { role: string }) => {
-=======
   background-color: ${(props: any) => {
->>>>>>> d44443a182781befd0389e42e16c515b24eae1ef
     switch (props.role) {
       case 'admin':
         return theme.colors.primary + '20';

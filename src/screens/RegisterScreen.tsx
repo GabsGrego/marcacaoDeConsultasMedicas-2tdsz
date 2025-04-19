@@ -98,6 +98,9 @@ const RegisterScreen: React.FC = () => {
 const styles = {
   input: {
     marginBottom: 15,
+    backgroundColor: theme.colors.white,
+    borderRadius: 5,
+    opacity: 0.8,
   },
   button: {
     marginTop: 10,

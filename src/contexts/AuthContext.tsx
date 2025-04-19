@@ -74,8 +74,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUserProfile = async (updatedUser: User) => {
+    try {
+      setUser(updatedUser);
+      
+      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+      
+      return true;
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, register, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, register, signOut, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
@@ -88,3 +101,4 @@ export const useAuth = () => {
   }
   return context;
 }; 
+

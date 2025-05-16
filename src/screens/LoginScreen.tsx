@@ -34,8 +34,14 @@ const LoginScreen: React.FC = () => {
 
   return (
     <Container>
-      <Title>Login</Title>
-      
+      <Title>
+        Easy Health
+      </Title>
+
+      <Text style={styles.subtitle}>
+        Marcar consultas nunca foi tão rápido e fácil!
+      </Text>
+
       <Input
         placeholder="Email"
         value={email}
@@ -104,6 +110,12 @@ const styles = {
     backgroundColor: theme.colors.secondary,
     paddingVertical: 12,
   },
+  subtitle: {
+    marginBottom: 30,
+    fontSize: 18,
+    textAlign: 'center' as const,
+    color: theme.colors.text,
+  },
   hint: {
     marginTop: 20,
     textAlign: 'center' as const,
@@ -125,11 +137,11 @@ const Container = styled.View`
 `;
 
 const Title = styled.Text`
-  font-size: 24px;
+  font-size: 38px;
   font-weight: bold;
   text-align: center;
   margin-bottom: 30px;
-  color: ${theme.colors.text};
+  color: ${theme.colors.primary};
 `;
 
 const ErrorText = styled.Text`
